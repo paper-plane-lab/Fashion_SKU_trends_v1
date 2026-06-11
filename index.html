@@ -1,0 +1,2499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Fashion Top Sku</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand: #ee4d2d;
+            --brand-dark: #d93f21;
+            --brand-soft: #fff1ed;
+            --ink: #172033;
+            --muted: #667085;
+            --line: #e6eaf0;
+            --page: #f5f7fb;
+            --surface: #ffffff;
+            --success: #0f8a5f;
+            --info: #2563eb;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #f8fafc 0%, var(--page) 260px, #eef2f7 100%);
+            color: var(--ink);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            letter-spacing: 0;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid var(--line);
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 224px;
+            z-index: 100;
+            padding: 14px 12px;
+            box-shadow: 10px 0 24px rgba(23, 32, 51, 0.04);
+        }
+
+        .brand-panel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 12px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            background: var(--brand);
+            box-shadow: 0 8px 18px rgba(238, 77, 45, 0.22);
+            flex: 0 0 auto;
+        }
+
+        .brand-title {
+            font-size: 16px;
+            line-height: 1.2;
+            font-weight: 900;
+            color: var(--ink);
+            white-space: nowrap;
+        }
+
+        .brand-subtitle {
+            margin-top: 4px;
+            font-size: 13px;
+            line-height: 1.2;
+            font-weight: 800;
+            color: var(--muted);
+        }
+
+        .sidebar-nav { gap: 4px; }
+
+        .nav-link {
+            color: #344054;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            text-decoration: none;
+            border-radius: 8px;
+            min-height: 40px;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .nav-link i { font-size: 15px; }
+        .nav-link:hover { background: #f6f8fb; color: var(--brand); }
+        .nav-link.active { background: var(--brand-soft); color: var(--brand); font-weight: 800; }
+        .submenu { padding-left: 18px; }
+        .submenu .nav-link { min-height: 32px; padding: 7px 10px; font-size: 12px; font-weight: 500; color: var(--muted); }
+
+        .main-content {
+            margin-left: 224px;
+            padding: 24px;
+        }
+
+        .page-toolbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .eyebrow {
+            color: var(--brand);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .page-title {
+            margin: 4px 0 4px;
+            font-size: 24px;
+            line-height: 1.2;
+            font-weight: 800;
+            color: var(--ink);
+        }
+
+        .page-subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .time-badge {
+            background: #eef5ff;
+            color: #31527a;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 8px 12px;
+            border: 1px solid #dbeafe;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 36px;
+        }
+
+        .refresh-btn {
+            min-height: 36px;
+            border-radius: 8px;
+            border: 0;
+            background: var(--brand);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            box-shadow: 0 8px 18px rgba(238, 77, 45, 0.22);
+        }
+
+        .refresh-btn:hover { background: var(--brand-dark); color: #ffffff; }
+
+        .refresh-btn.is-loading {
+            pointer-events: none;
+            opacity: 0.78;
+        }
+
+        .refresh-btn.is-loading i {
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .filter-panel {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 22px rgba(23, 32, 51, 0.04);
+        }
+
+        .result-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 0 0 12px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+        }
+
+        .result-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            color: #344054;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .result-left span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .result-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 28px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: #ecfdf5;
+            color: var(--success);
+            border: 1px solid #bbf7d0;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .filter-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .filter-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--ink);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .reset-btn {
+            border: 1px solid var(--line);
+            background: #ffffff;
+            color: var(--muted);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .reset-btn:hover {
+            color: var(--brand);
+            border-color: #ffd1c6;
+            background: var(--brand-soft);
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+        }
+
+        .form-select,
+        .form-control {
+            border-color: var(--line);
+            border-radius: 8px;
+            color: var(--ink);
+            font-size: 13px;
+            min-height: 38px;
+        }
+
+        .form-select:focus,
+        .form-control:focus {
+            border-color: #ffb19f;
+            box-shadow: 0 0 0 0.2rem rgba(238, 77, 45, 0.12);
+        }
+
+        .search-field {
+            position: relative;
+        }
+
+        .search-field i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            pointer-events: none;
+            font-size: 14px;
+        }
+
+        .search-field .form-control {
+            padding-left: 34px;
+        }
+
+        .col-ecommerce-8-grid {
+            width: 16.666%;
+            flex: 0 0 16.666%;
+            max-width: 16.666%;
+            padding: 0 6px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 1600px) { .col-ecommerce-8-grid { width: 20%; flex: 0 0 20%; max-width: 20%; } }
+        @media (max-width: 1200px) { .col-ecommerce-8-grid { width: 25%; flex: 0 0 25%; max-width: 25%; } }
+        @media (max-width: 992px) { .col-ecommerce-8-grid { width: 33.333%; flex: 0 0 33.333%; max-width: 33.333%; } }
+        @media (max-width: 768px) { .col-ecommerce-8-grid { width: 50%; flex: 0 0 50%; max-width: 50%; } }
+
+        .product-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 3px 10px rgba(23, 32, 51, 0.04);
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(23, 32, 51, 0.11);
+            border-color: #ffc2b5;
+        }
+
+        .product-click-area { cursor: default; }
+        .product-click-area.is-clickable { cursor: pointer; }
+
+        .product-img-wrapper {
+            position: relative;
+            padding-bottom: 100%;
+            background: #eef1f5;
+            overflow: hidden;
+        }
+
+        .rank-badge,
+        .country-badge {
+            position: absolute;
+            z-index: 2;
+            min-height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 11px;
+            line-height: 1;
+            font-weight: 900;
+            backdrop-filter: blur(8px);
+        }
+
+        .rank-badge {
+            left: 8px;
+            top: 8px;
+            color: #ffffff;
+            background: rgba(23, 32, 51, 0.82);
+        }
+
+        .rank-badge.hot {
+            background: var(--brand);
+            box-shadow: 0 8px 18px rgba(238, 77, 45, 0.2);
+        }
+
+        .country-badge {
+            right: 8px;
+            top: 8px;
+            color: #1d4ed8;
+            background: rgba(239, 246, 255, 0.92);
+            border: 1px solid rgba(147, 197, 253, 0.6);
+        }
+
+        .product-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.22s ease;
+        }
+
+        .product-card:hover .product-img { transform: scale(1.04); }
+
+        .product-info { padding: 10px; }
+
+        .cate-tag {
+            display: inline-flex;
+            align-items: center;
+            max-width: 100%;
+            background: var(--brand-soft);
+            color: var(--brand);
+            font-size: 11px;
+            line-height: 1.2;
+            padding: 4px 7px;
+            border-radius: 6px;
+            margin-bottom: 7px;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .category-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 7px;
+        }
+
+        .official-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #0f766e;
+            background: #ecfdf5;
+            border: 1px solid #bbf7d0;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 7px;
+        }
+
+        .product-title {
+            font-size: 13px;
+            font-weight: 700;
+            height: 38px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            margin-bottom: 0;
+            line-height: 1.45;
+            color: var(--ink);
+        }
+
+        .product-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+        .copy-title-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+            color: #475467;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            flex: 0 0 auto;
+            transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+        }
+
+        .copy-title-btn:hover,
+        .copy-title-btn.copied {
+            border-color: #ffd1c6;
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .product-footer {
+            margin-top: auto;
+            padding: 10px;
+            border-top: 1px solid var(--line);
+            background: #fbfcfe;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 9px;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+            margin-bottom: 9px;
+        }
+
+        .metric-item {
+            min-width: 0;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 7px;
+        }
+
+        .metric-item span {
+            display: block;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 800;
+            margin-bottom: 3px;
+        }
+
+        .metric-item strong {
+            display: block;
+            color: var(--ink);
+            font-size: 12px;
+            font-weight: 900;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .full-info {
+            display: grid;
+            gap: 5px;
+            margin-bottom: 9px;
+        }
+
+        .info-line {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        .info-line span {
+            color: var(--muted);
+            font-weight: 800;
+            flex: 0 0 auto;
+        }
+
+        .info-line strong {
+            color: #344054;
+            font-weight: 800;
+            text-align: right;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-price {
+            color: var(--brand);
+            font-size: 16px;
+            line-height: 1.2;
+            font-weight: 900;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .badge-sales {
+            border: 1px solid #ffe0d8;
+            background: #ffffff;
+            color: var(--brand);
+            border-radius: 999px;
+            font-size: 11px;
+            line-height: 1;
+            padding: 6px 8px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            max-width: 48%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .action-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 7px;
+        }
+
+        .action-row.single { grid-template-columns: 1fr; }
+
+        .tool-btn {
+            min-height: 31px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: #ffffff;
+            color: #344054;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px 8px;
+            width: 100%;
+        }
+
+        .tool-btn:hover {
+            color: var(--brand);
+            border-color: #ffd1c6;
+            background: var(--brand-soft);
+        }
+
+        .tool-btn-primary {
+            border-color: var(--brand);
+            background: var(--brand);
+            color: #ffffff;
+        }
+
+        .tool-btn-primary:hover {
+            border-color: var(--brand-dark);
+            background: var(--brand-dark);
+            color: #ffffff;
+        }
+
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 320px;
+            width: 100%;
+            color: var(--muted);
+            background: var(--surface);
+            border: 1px dashed #d7dde7;
+            border-radius: 8px;
+            margin: 0 6px;
+        }
+
+        .state-card,
+        .empty-state {
+            width: 100%;
+            min-height: 240px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--muted);
+            background: var(--surface);
+            border: 1px dashed #d7dde7;
+            border-radius: 8px;
+            margin: 0 6px;
+            padding: 28px;
+        }
+
+        .state-card strong,
+        .empty-state strong {
+            display: block;
+            color: var(--ink);
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .state-card p,
+        .empty-state p {
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .state-card.error {
+            border-color: #fecaca;
+            background: #fff7f7;
+            color: #991b1b;
+        }
+
+        .copy-toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 1200;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: #172033;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+            box-shadow: 0 12px 28px rgba(23, 32, 51, 0.24);
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+
+        .copy-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                min-height: auto;
+                border-right: 0;
+                border-bottom: 1px solid var(--line);
+                box-shadow: none;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                flex-direction: row !important;
+                gap: 8px;
+                overflow-x: auto;
+                padding-bottom: 4px;
+            }
+
+            .sidebar-nav .nav-link {
+                white-space: nowrap;
+                flex: 0 0 auto;
+            }
+
+            .submenu { display: none; }
+            .main-content { margin-left: 0; padding: 18px; }
+            .page-toolbar { flex-direction: column; align-items: stretch; }
+            .toolbar-actions { justify-content: flex-start; }
+        }
+
+        @media (max-width: 576px) {
+            .main-content { padding: 14px; }
+            .page-title { font-size: 21px; }
+            .toolbar-actions, .refresh-btn, .time-badge { width: 100%; }
+            .refresh-btn, .time-badge { justify-content: center; }
+            .result-bar { align-items: flex-start; flex-direction: column; }
+            .result-left span { white-space: normal; }
+            .copy-toast { left: 14px; right: 14px; bottom: 14px; justify-content: center; }
+            .col-ecommerce-8-grid { width: 100%; flex: 0 0 100%; max-width: 100%; }
+        }
+  /* 热销产品筛选条件：同一行，窄屏横向滚动 */
+  .top-sku-filter-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .top-sku-filter-row .filter-item {
+    flex: 0 0 180px;
+    min-width: 180px;
+  }
+
+  .top-sku-filter-row .filter-item.filter-item-wide {
+    flex-basis: 260px;
+    min-width: 260px;
+  }
+
+  .top-sku-filter-row .form-select,
+  .top-sku-filter-row .form-control {
+    width: 100%;
+  }
+
+  .top-sku-filter-row::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .top-sku-filter-row::-webkit-scrollbar-thumb {
+    background: #d7dce5;
+    border-radius: 999px;
+  }
+
+  /* 新商品卡 */
+  .product-card-v2 {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(23, 32, 51, 0.05);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    height: 100%;
+  }
+
+  .product-card-v2:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px rgba(23, 32, 51, 0.12);
+    border-color: #ffc6b9;
+  }
+
+  .product-image-wrap {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: #f2f4f8;
+    overflow: hidden;
+  }
+
+  .product-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.2s ease;
+  }
+
+  .product-card-v2:hover .product-image-wrap img {
+    transform: scale(1.04);
+  }
+
+  .top-badge {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 2;
+    min-height: 24px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--brand);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1;
+    box-shadow: 0 8px 18px rgba(238, 77, 45, 0.22);
+  }
+
+  .country-badge {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 2;
+    min-height: 24px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(239, 246, 255, 0.96);
+    color: #1d4ed8;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1;
+    border: 1px solid rgba(147, 197, 253, 0.55);
+  }
+
+  .product-body {
+    padding: 10px 12px 12px;
+  }
+
+  .product-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+.shop-tag {
+  color: #f97316;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+  line-height: 1.35;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+ .title-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.product-title {
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+
+  .copy-title-btn {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: #667085;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+}
+
+.copy-title-btn:hover {
+  color: var(--brand);
+  border-color: #ffccbf;
+  background: var(--brand-soft);
+}
+
+.copy-title-btn.copied {
+  color: #0f8a5f;
+  border-color: #bbf7d0;
+  background: #ecfdf5;
+}
+
+  .price-line {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 16px;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  .price-line .usd-price {
+    color: var(--brand);
+  }
+
+  .price-line .local-price {
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .stat-line {
+    font-size: 12px;
+    line-height: 1.45;
+    color: #344054;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .meta-line {
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+
+  .card-actions {
+    margin-top: 10px;
+  }
+
+  .card-actions .tool-btn {
+    width: 100%;
+  }
+
+  /* 热销产品视图隐藏摘要条 */
+  .result-bar.is-hidden {
+    display: none !important;
+  }
+  .coming-soon-page {
+    min-height: 420px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(23, 32, 51, 0.05);
+  }
+
+  .coming-soon-text {
+    color: var(--brand);
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-align: center;
+    padding: 24px;
+  }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid px-0">
+    <div class="sidebar">
+        <div class="brand-panel">
+            <div class="brand-icon">
+                <i class="bi bi-bag-heart-fill"></i>
+            </div>
+            <div>
+                <div class="brand-title">Fashion</div>
+                <div class="brand-subtitle">选品指南</div>
+            </div>
+        </div>
+        <div class="nav flex-column sidebar-nav">
+            <a class="nav-link active" data-bs-toggle="collapse" href="#menu-recommend" data-view-nav="recommend">
+                <i class="bi bi-stars"></i> Shopee选品推荐 <i class="bi bi-chevron-down ms-auto small"></i>
+            </a>
+            <div class="collapse submenu show" id="menu-recommend">
+                <a class="nav-link active" href="#" data-view-nav="top-sku" onclick="switchView('top-sku'); return false;">热销产品</a>
+                <a class="nav-link" href="#" data-view-nav="top-new-sku" onclick="switchView('top-new-sku'); return false;">热销新品</a>
+                <a class="nav-link" href="#" data-view-nav="top-wh-sku" onclick="switchView('top-wh-sku'); return false;">海外仓热销产品</a>
+            </div>
+            <a class="nav-link" href="#" data-view-nav="external" onclick="switchView('external'); return false;"><i class="bi bi-graph-up-arrow"></i> 站外热销参考</a>
+            <a class="nav-link" href="#" onclick="switchView('coming-soon'); return false;"><i class="bi bi-search"></i> 热搜关键词</a>
+            <a class="nav-link" href="#" onclick="switchView('coming-soon'); return false;"><i class="bi bi-pie-chart"></i> 品类趋势分析</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-toolbar">
+            <div>
+                <div class="eyebrow">Shopee选品推荐</div>
+                <h4 class="page-title">热销产品</h4>
+                <p class="page-subtitle">请按站点、品类、标题关键词等筛选热销商品，辅助判断上新方向。</p>
+            </div>
+            <div class="toolbar-actions">
+                <span class="time-badge" id="sync-time-field">
+                    <i class="bi bi-clock-history"></i> 同步时间：正在获取...
+                </span>
+                <button class="refresh-btn" id="refresh-btn" onclick="fetchDataByDomainChannel()" title="重新同步数据">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span id="refresh-btn-text">刷新同步</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-panel">
+            <div class="filter-title-row">
+                <div class="filter-title">
+                    <i class="bi bi-sliders"></i>
+                    <span>筛选条件</span>
+                </div>
+                <button class="reset-btn" onclick="resetFilters()" title="恢复默认筛选">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    <span>重置</span>
+                </button>
+            </div>
+            <div class="row g-2" id="filter-row">
+            </div>
+        </div>
+
+        <div class="row g-1" id="grid-container">
+            <div class="loader-container" id="loading-box">
+                <div class="spinner-border text-danger mb-2" role="status"></div>
+                <span class="text-muted small">正在同步大盘数据...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // 填入热销产品 Apps Script /exec 地址；接口返回格式：{ updateTime: "B1时间", products: [...] }
+    const TOP_SKU_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbUXYdsIvDgEIRTIn43939gfvqIF9tsr3i2-yndKXNGrKJFNi2Z_wbwgK47I2bQx40/exec';
+    // 填入热销新品 Apps Script /exec 地址；接口返回格式同上
+    const TOP_NEW_SKU_APPS_SCRIPT_URL = 'https://script.google.com/a/macros/shopee.com/s/AKfycbzhBQsOWgKnjORwSDpJpiS9HA1328_F98W-leQxY-mwRHLXV8pjTXgqsdKCMLld6HkE/exec';
+    // 填入海外仓热销产品 Apps Script /exec 地址；接口返回格式同上
+    const TOP_WH_SKU_APPS_SCRIPT_URL = 'https://script.google.com/a/macros/shopee.com/s/AKfycbwIAXEFl_unXGwQ-7U0FwBj5Bw8VTZAH2ef1ZuT6J_sjx_RhCzVUZiLfO4No9TBLYpH/exec';
+
+    const FIELD_ALIASES = {
+    dailySales: ['日销量区间', '日销量区间_2', 'daily_sales_range'],
+    dailyRevenue: ['日销售额区间', '日销售额区间_2', 'daily_revenue_range', 'daily_gmv_range'],
+    itemName: ['item_name', '商品名称', '商品名', '商品标题', '产品名称', '标题'],
+    itemRank: ['item_rank', '排名'],
+    itemImage: ['item_image', '商品图片', '主图', '图片', '封面图'],
+    region: ['grass_region', '站点', '国家/地区', '国家', '地区', '市场'],
+    official: ['is_official_shop', '品牌商城', '品牌商场', '商城', '店铺类型', '店铺属性'],
+    level1: ['cb_level1_global_be_category', 'level1_global_be_category', '一级类目', '一级类别', '一级分类', '大类'],
+    level2: ['cb_level2_global_be_category', 'level2_global_be_category', '二级类目', '二级类别', '二级分类', '中类'],
+    level3: ['cb_level3_global_be_category', 'level3_global_be_category', '三级类目', '三级类别', '三级分类', '小类'],
+    createDate: ['item_create_date', '创建时间', '上架时间', '创建日期', '上新时间', '上新日期'],
+    price: ['item_price', '售价', '价格', '本地价格', 'local_price'],
+    priceUsd: ['item_price_usd', '美元价格', 'USD价格', 'usd_price', 'price_usd'],
+    currency: ['item_currency', 'currency', 'currency_code', 'local_currency', 'currency_symbol']
+};
+
+    let LIVE_DATA_STORE = [];
+    let LATEST_UPDATE_TIME = '';
+
+    window.addEventListener('DOMContentLoaded', function() {
+        fetchDataByDomainChannel();
+    });
+
+    function fetchDataByDomainChannel() {
+        setSyncLoading(true);
+
+        if (!TOP_SKU_APPS_SCRIPT_URL || TOP_SKU_APPS_SCRIPT_URL.includes('REPLACE')) {
+            setSyncLoading(false);
+            showErrorState('请先配置热销产品 Apps Script /exec 地址。');
+            return;
+        }
+
+        const oldScript = document.getElementById('top-sku-apps-script');
+        if (oldScript) oldScript.remove();
+
+        const callbackName = `onTopSkuReceived_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const script = document.createElement('script');
+        const timer = setTimeout(function() {
+            cleanupTopSkuScript(callbackName, script, timer);
+            setSyncLoading(false);
+            showErrorState('Apps Script 没有返回数据，请检查脚本部署或访问权限。');
+        }, 18000);
+
+        window[callbackName] = function(res) {
+            cleanupTopSkuScript(callbackName, script, timer);
+            setSyncLoading(false);
+
+            if (res && res.error) {
+                showErrorState(res.error);
+                return;
+            }
+
+            LATEST_UPDATE_TIME = (res && (res.updateTime || res.updatedAt || res.syncTime)) || '未检测到';
+            LIVE_DATA_STORE = normalizeProductsPayload(res);
+            document.getElementById('sync-time-field').innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> 同步时间：${escapeHtml(LATEST_UPDATE_TIME)}`;
+            buildDynamicFilters();
+            renderGrid();
+        };
+
+        script.id = 'top-sku-apps-script';
+        script.onerror = function() {
+            cleanupTopSkuScript(callbackName, script, timer);
+            setSyncLoading(false);
+            showErrorState('无法加载 Apps Script 数据接口，请检查脚本地址。');
+        };
+
+        script.src = TOP_SKU_APPS_SCRIPT_URL + (TOP_SKU_APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'callback=' + encodeURIComponent(callbackName) + '&t=' + Date.now();
+        document.body.appendChild(script);
+    }
+
+    function cleanupTopSkuScript(callbackName, script, timer) {
+        clearTimeout(timer);
+        delete window[callbackName];
+        if (script && script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    function setSyncLoading(isLoading) {
+        const button = document.getElementById('refresh-btn');
+        const text = document.getElementById('refresh-btn-text');
+        const status = document.getElementById('result-status-text');
+        if (!button || !text) return;
+
+        button.classList.toggle('is-loading', isLoading);
+        button.disabled = isLoading;
+        text.textContent = isLoading ? '同步中' : '刷新同步';
+        if (isLoading && status) status.textContent = '正在通过 Apps Script 同步 Top sku合并表...';
+        if (isLoading && LIVE_DATA_STORE.length === 0) {
+            document.getElementById('grid-container').innerHTML = `
+                <div class="loader-container" id="loading-box">
+                    <div class="spinner-border text-danger mb-2" role="status"></div>
+                    <span class="text-muted small">正在同步热销产品数据...</span>
+                </div>`;
+        }
+    }
+
+    function normalizeProductsPayload(res) {
+        if (!res) return [];
+        if (Array.isArray(res)) return res;
+        if (Array.isArray(res.products)) {
+            if (Array.isArray(res.headers) && Array.isArray(res.products[0])) {
+                return res.products.map(function(values) {
+                    const rowObject = {};
+                    res.headers.forEach(function(header, index) {
+                        rowObject[String(header).trim()] = values[index] || '';
+                    });
+                    return rowObject;
+                });
+            }
+            return res.products;
+        }
+        if (Array.isArray(res.data)) {
+            if (Array.isArray(res.headers) && Array.isArray(res.data[0])) {
+                return res.data.map(function(values) {
+                    const rowObject = {};
+                    res.headers.forEach(function(header, index) {
+                        rowObject[String(header).trim()] = values[index] || '';
+                    });
+                    return rowObject;
+                });
+            }
+            return res.data;
+        }
+        if (Array.isArray(res.rows)) {
+            if (Array.isArray(res.headers) && Array.isArray(res.rows[0])) {
+                return res.rows.map(function(values) {
+                    const rowObject = {};
+                    res.headers.forEach(function(header, index) {
+                        rowObject[String(header).trim()] = values[index] || '';
+                    });
+                    return rowObject;
+                });
+            }
+            return res.rows;
+        }
+        return [];
+    }
+
+    function buildDynamicFilters() {
+        buildSelectOptions('filter-region', uniqueByField('region'), 'all', 'All 站点', ' 站点');
+        buildSelectOptions('filter-level1', uniqueByField('level1'), 'all', 'All 一级类目');
+        buildSelectOptions('filter-level2', uniqueByField('level2'), 'all', 'All 二级类目');
+        buildSelectOptions('filter-level3', uniqueByField('level3'), 'all', 'All 三级类目');
+    }
+    function cleanMoneyText(value) {
+    return String(value ?? '').trim().replace(/^\$\s*/, '');
+}
+
+function getLocalCurrencyPrefix(row) {
+    const raw = getField(row, 'currency');
+    const value = String(raw || '').trim();
+    if (!value) return '';
+
+    const upper = value.toUpperCase();
+    const map = {
+        PHP: '₱ ',
+        THB: '฿ ',
+        VND: '₫ ',
+        MYR: 'RM ',
+        IDR: 'Rp ',
+        SGD: 'S$ ',
+        USD: '$ ',
+        TWD: 'NT$ '
+    };
+
+    if (map[upper]) return map[upper];
+    if (/^[^\dA-Za-z]+$/.test(value)) return value + ' ';
+    return value + ' ';
+}
+
+function getPriceLine(row) {
+    const usd = cleanMoneyText(getField(row, 'priceUsd') || '-');
+    const local = cleanMoneyText(getField(row, 'price') || '-');
+    const prefix = getLocalCurrencyPrefix(row);
+    return {
+        usdText: `$ ${usd}`,
+        localText: `(${prefix}${local})`
+    };
+}
+
+function getCategoryLine(level1, level2) {
+    const l1 = String(level1 || '').trim();
+    const l2 = String(level2 || '').trim();
+    if (l1 && l2) return `类目：${l1}>${l2}`;
+    if (l1) return `类目：${l1}`;
+    return '类目：-';
+}
+
+    function uniqueByField(fieldName) {
+        const values = {};
+        LIVE_DATA_STORE.forEach(function(row) {
+            const value = getField(row, fieldName);
+            if (value) values[value] = true;
+        });
+        return Object.keys(values).sort(function(a, b) { return a.localeCompare(b); });
+    }
+
+    function buildSelectOptions(selectId, values, allValue, allLabel, suffix) {
+        const select = document.getElementById(selectId);
+        const current = select.value || allValue;
+        select.innerHTML = '';
+        const allOption = document.createElement('option');
+        allOption.value = allValue;
+        allOption.textContent = allLabel;
+        select.appendChild(allOption);
+        values.forEach(function(value) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = suffix ? value + suffix : value;
+            select.appendChild(option);
+        });
+        select.value = values.includes(current) ? current : allValue;
+    }
+
+    // 核心提炼函数：安全地将非结构化数字或“1000+”转成纯数字进行精准排序
+    function parseSalesNumber(salesStr) {
+        if (!salesStr) return 0;
+        let clean = String(salesStr).replace(/,/g, '').trim();
+        // 如果包含类似 1.2k 的格式
+        if (clean.toLowerCase().includes('k')) {
+            return parseFloat(clean) * 1000;
+        }
+        // 抓取字符串中所有的数字连续片段
+        let nums = clean.match(/\d+/g);
+        if (nums && nums.length > 0) {
+            // 如果是个区间（如 100-500），取上限进行排序更具参考性
+            return parseInt(nums[nums.length - 1], 10);
+        }
+        return 0;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, function(char) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char];
+        });
+    }
+
+    function getSortLabel(sortVal) {
+        if (sortVal === 'asc') return '销量低优先';
+        if (sortVal === 'none') return '默认顺序';
+        return '销量高优先';
+    }
+
+    function getField(row, fieldName) {
+        const aliases = FIELD_ALIASES[fieldName] || [];
+        const normalizedAliases = aliases.map(normalizeFieldKey);
+        const rowKeys = Object.keys(row || {});
+
+        for (let i = 0; i < aliases.length; i++) {
+            const key = aliases[i];
+            if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') return String(row[key]).trim();
+        }
+
+        for (let i = 0; i < rowKeys.length; i++) {
+            const key = rowKeys[i];
+            const normalizedKey = normalizeFieldKey(key);
+            if (!normalizedKey) continue;
+            if (normalizedAliases.includes(normalizedKey)) {
+                const value = row[key];
+                if (value !== undefined && value !== null && String(value).trim() !== '') return String(value).trim();
+            }
+        }
+
+        const searchTokens = normalizedAliases.filter(Boolean);
+        for (let i = 0; i < rowKeys.length; i++) {
+            const key = rowKeys[i];
+            const normalizedKey = normalizeFieldKey(key);
+            if (!normalizedKey) continue;
+            for (let j = 0; j < searchTokens.length; j++) {
+                const token = searchTokens[j];
+                if (token && (normalizedKey.includes(token) || token.includes(normalizedKey))) {
+                    const value = row[key];
+                    if (value !== undefined && value !== null && String(value).trim() !== '') return String(value).trim();
+                }
+            }
+        }
+        return '';
+    }
+
+    function normalizeFieldKey(value) {
+        return String(value || '')
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, '')
+            .replace(/[()（）\[\]【】{}<>:：,，。./\\_-]/g, '');
+    }
+
+    function getOfficialValue(row) {
+        const rawValue = String(getField(row, 'official')).trim().toLowerCase();
+        if (rawValue === '1' || rawValue === 'true' || rawValue === 'yes' || rawValue === '商城') return '1';
+        return '0';
+    }
+
+    function updateSummary(filteredCount) {
+        const resultText = document.getElementById('result-status-text');
+        if (resultText) {
+            resultText.textContent = `当前显示 ${filteredCount} 个热销产品`;
+        }
+    }
+
+    function resetFilters() {
+        document.getElementById('filter-sort').value = 'desc';
+        document.getElementById('filter-region').value = 'all';
+        document.getElementById('filter-level1').value = 'all';
+        document.getElementById('filter-level2').value = 'all';
+        document.getElementById('filter-level3').value = 'all';
+        document.getElementById('filter-official').value = '';
+        document.getElementById('filter-keyword').value = '';
+        renderGrid();
+    }
+
+    function openExternalLink(url) {
+        if (!url) return;
+        window.open(url, '_blank', 'noopener');
+    }
+
+    function openCardLink(element) {
+        openExternalLink(element.dataset.url);
+    }
+
+    function openButtonLink(event, element) {
+        event.stopPropagation();
+        openExternalLink(element.dataset.url);
+    }
+
+    function openImageSearch(event, element) {
+        event.stopPropagation();
+        const img = element.dataset.image;
+        if (!img) return;
+        openExternalLink('https://s.1688.com/youyuan/index.htm?tab=image&imageAddress=' + encodeURIComponent(img));
+    }
+
+    function fallbackCopyText(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+    }
+
+    function showCopyToast(message) {
+        let toast = document.getElementById('copy-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'copy-toast';
+            toast.className = 'copy-toast';
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = `<i class="bi bi-check-circle-fill"></i><span>${escapeHtml(message)}</span>`;
+        toast.classList.add('show');
+        clearTimeout(window.copyToastTimer);
+        window.copyToastTimer = setTimeout(function() {
+            toast.classList.remove('show');
+        }, 1600);
+    }
+
+    function showComingSoon(event) {
+        if (event) event.preventDefault();
+        showCopyToast('产品搭建中，敬请期待');
+    }
+
+    async function copyProductTitle(event, element) {
+        event.stopPropagation();
+        const fullTitle = element.dataset.title || '';
+        if (!fullTitle) return;
+
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(fullTitle);
+            } else {
+                fallbackCopyText(fullTitle);
+            }
+            element.classList.add('copied');
+            setTimeout(function() { element.classList.remove('copied'); }, 900);
+            showCopyToast('完整标题已复制');
+        } catch (error) {
+            fallbackCopyText(fullTitle);
+            showCopyToast('完整标题已复制');
+        }
+    }
+
+    function renderGrid() {
+        const container = document.getElementById('grid-container');
+        const sortVal = document.getElementById('filter-sort').value;
+        const regionVal = document.getElementById('filter-region').value;
+        const level1Val = document.getElementById('filter-level1').value;
+        const level2Val = document.getElementById('filter-level2').value;
+        const level3Val = document.getElementById('filter-level3').value;
+        const officialVal = document.getElementById('filter-official').value;
+        const keywordVal = document.getElementById('filter-keyword').value.trim().toLowerCase();
+        
+        // 1. 执行条件过滤
+        let filtered = LIVE_DATA_STORE.filter(row => {
+            const rRegion = getField(row, 'region');
+            const rLevel1 = getField(row, 'level1');
+            const rLevel2 = getField(row, 'level2');
+            const rLevel3 = getField(row, 'level3');
+            const rOfficial = getOfficialValue(row);
+            const rName = getField(row, 'itemName').toLowerCase();
+            return (regionVal === 'all' || rRegion === regionVal) &&
+                   (level1Val === 'all' || rLevel1 === level1Val) &&
+                   (level2Val === 'all' || rLevel2 === level2Val) &&
+                   (level3Val === 'all' || rLevel3 === level3Val) &&
+                   (!officialVal || rOfficial === officialVal) &&
+                   (!keywordVal || rName.includes(keywordVal));
+        });
+
+        // 2. 执行销量排序逻辑
+        if (sortVal === 'desc') {
+            filtered.sort((a, b) => parseSalesNumber(getField(b, 'dailySales')) - parseSalesNumber(getField(a, 'dailySales')));
+        } else if (sortVal === 'asc') {
+            filtered.sort((a, b) => parseSalesNumber(getField(a, 'dailySales')) - parseSalesNumber(getField(b, 'dailySales')));
+        }
+
+        updateSummary(filtered.length);
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state"><div><i class="bi bi-inbox fs-2 d-block mb-2"></i><strong>暂无匹配数据</strong><p>可以重置筛选，或换一个标题关键词。</p></div></div>';
+            return;
+        }
+
+        let gridHtml = "";
+        filtered.forEach((row, index) => {
+            let name = getField(row, 'itemName') || '未指定商品名';
+            let price = getField(row, 'price') || '暂无价格';
+            let priceUsd = getField(row, 'priceUsd') || '-';
+            let sales = getField(row, 'dailySales') || '0';
+            let revenue = getField(row, 'dailyRevenue') || '-';
+            let img = getField(row, 'itemImage') || '';
+            let region = getField(row, 'region') || '-';
+            let level1 = getField(row, 'level1') || '-';
+            let level2 = getField(row, 'level2') || '-';
+            let level3 = getField(row, 'level3') || '-';
+            let itemRank = getField(row, 'itemRank') || (index + 1);
+            let createDate = getField(row, 'createDate') || '-';
+            let official = getOfficialValue(row);
+            let officialLabel = official === '1' ? '[Mall]' : '[Non-Mall]';
+            if (!img || !img.startsWith('http')) img = 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=200';
+
+            const safeName = escapeHtml(name);
+            const safePrice = escapeHtml(price);
+            const safePriceUsd = escapeHtml(priceUsd);
+            const safeSales = escapeHtml(sales);
+            const safeRevenue = escapeHtml(revenue);
+            const safeImg = escapeHtml(img);
+            const safeRegion = escapeHtml(region);
+            const safeLevel1 = escapeHtml(level1);
+            const safeLevel2 = escapeHtml(level2);
+            const safeLevel3 = escapeHtml(level3);
+            const safeRank = escapeHtml(itemRank);
+            const safeCreateDate = escapeHtml(createDate);
+            const safeOfficialLabel = escapeHtml(officialLabel);
+
+            gridHtml += `
+                <div class="col-ecommerce-8-grid">
+                    <div class="product-card">
+                        <div class="product-click-area">
+                            <div class="product-img-wrapper">
+                                <span class="rank-badge ${index < 3 ? 'hot' : ''}">Rank ${safeRank}</span>
+                                <span class="country-badge">${safeRegion}</span>
+                                <img src="${safeImg}" class="product-img" alt="${safeName}" onerror="this.src='https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=200'">
+                            </div>
+                            <div class="product-info">
+                                <div class="category-stack">
+                                    <span class="cate-tag" title="${safeLevel1}">${safeLevel1}</span>
+                                    <span class="cate-tag" title="${safeLevel2}">${safeLevel2}</span>
+                                    <span class="cate-tag" title="${safeLevel3}">${safeLevel3}</span>
+                                </div>
+                                <div class="product-title-row">
+    <div class="title-wrap">
+        <span class="shop-tag">${safeOfficialLabel}</span>
+        <span class="product-title" title="${safeName}">${safeName}</span>
+    </div>
+    <button class="copy-title-btn" data-title="${safeName}" onclick="copyProductTitle(event, this)" title="复制完整标题">
+        <i class="bi bi-clipboard"></i>
+    </button>
+</div>
+                        </div>
+                        <div class="product-footer">
+                            <div class="price-row">
+                                <span class="product-price" title="${safePrice}">${safePrice}</span>
+                                <span class="badge-sales" title="实际参与排序权重值: ${parseSalesNumber(sales)}">
+                                    <i class="bi bi-fire"></i>${safeSales}
+                                </span>
+                            </div>
+                            <div class="metric-grid">
+                                <div class="metric-item"><span>日销量区间</span><strong title="${safeSales}">${safeSales}</strong></div>
+                                <div class="metric-item"><span>日销售额区间</span><strong title="${safeRevenue}">${safeRevenue}</strong></div>
+                                <div class="metric-item"><span>Item Rank</span><strong title="${safeRank}">${safeRank}</strong></div>
+                                <div class="metric-item"><span>USD 价格</span><strong title="${safePriceUsd}">${safePriceUsd}</strong></div>
+                            </div>
+                            <div class="full-info">
+                                <div class="info-line"><span>站点</span><strong title="${safeRegion}">${safeRegion}</strong></div>
+                                <div class="info-line"><span>品牌商城</span><strong title="${safeOfficialLabel}">${safeOfficialLabel}</strong></div>
+                                <div class="info-line"><span>一级类目</span><strong title="${safeLevel1}">${safeLevel1}</strong></div>
+                                <div class="info-line"><span>二级类目</span><strong title="${safeLevel2}">${safeLevel2}</strong></div>
+                                <div class="info-line"><span>三级类目</span><strong title="${safeLevel3}">${safeLevel3}</strong></div>
+                                <div class="info-line"><span>创建日期</span><strong title="${safeCreateDate}">${safeCreateDate}</strong></div>
+                            </div>
+                            <div class="official-tag">
+                                <i class="bi ${official === '1' ? 'bi-shop' : 'bi-shop-window'}"></i>
+                                <span>${safeOfficialLabel}</span>
+                            </div>
+                            <div class="action-row single mt-2">
+                                <button class="tool-btn" data-image="${safeImg}" onclick="openImageSearch(event, this)" title="用商品图片搜索 1688">
+                                    <i class="bi bi-camera"></i>
+                                    <span>图搜</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        container.innerHTML = gridHtml;
+    }
+</script>
+
+<script>
+    const EXTERNAL_APPS_SCRIPT_URL = "https://script.google.com/a/macros/shopee.com/s/AKfycbwYP-Smb0Pp__2lUoqf-pTbDXYT0TV_MwhCX_Bw8GuibaF6LcryZpfiNpF65vt24G5_/exec";
+    const TOP_SKU_RENDER_LIMIT = 300;
+    const EXTERNAL_RENDER_LIMIT = 600;
+    var CURRENT_VIEW = 'top-sku';
+    var VIEW_DATA_STORE = { 'top-sku': [], 'top-new-sku': [], 'top-wh-sku': [], external: [], 'coming-soon': [] };
+    var VIEW_UPDATE_TIME = { 'top-sku': '', 'top-new-sku': '', 'top-wh-sku': '', external: '', 'coming-soon': '' };
+
+    function switchView(viewName) {
+        CURRENT_VIEW = viewName;
+        LIVE_DATA_STORE = VIEW_DATA_STORE[viewName] || [];
+        updateActiveNav(viewName);
+        updatePageHeader(viewName);
+        renderFilterControls(viewName);
+        if (viewName === 'coming-soon') {
+            renderComingSoonView();
+            return;
+        }
+        function renderFilterControls(viewName) {
+    const row = document.getElementById('filter-row');
+
+    if (viewName === 'external') {
+        row.className = 'row g-2';
+        row.innerHTML = `
+            <div class="col-md-2">
+                <label class="form-label mb-1">站点</label>
+                <select class="form-select form-select-sm" id="filter-country" onchange="renderGrid()">
+                    <option value="全部">全部站点</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label mb-1">商品分类</label>
+                <select class="form-select form-select-sm" id="filter-category" onchange="renderGrid()">
+                    <option value="全部">全部商品分类</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1">销量排序</label>
+                <select class="form-select form-select-sm" id="filter-sort" onchange="renderGrid()">
+                    <option value="desc" selected>销量从高到低</option>
+                    <option value="asc">销量从低到高</option>
+                    <option value="none">表格默认顺序</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1">标题关键词</label>
+                <div class="search-field">
+                    <i class="bi bi-search"></i>
+                    <input class="form-control form-control-sm" id="filter-keyword" type="search" placeholder="搜索标题关键词" oninput="renderGrid()">
+                </div>
+            </div>`;
+    } else {
+        row.className = 'top-sku-filter-row';
+        row.innerHTML = `
+            <div class="filter-item">
+                <label class="form-label mb-1">排序</label>
+                <select class="form-select form-select-sm" id="filter-sort" onchange="renderGrid()">
+                    <option value="desc" selected>销量从高到低</option>
+                    <option value="asc">销量从低到高</option>
+                    <option value="none">表格默认顺序</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label class="form-label mb-1">站点</label>
+                <select class="form-select form-select-sm" id="filter-region" onchange="renderGrid()">
+                    <option value="all">All 站点</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label class="form-label mb-1">一级类目</label>
+                <select class="form-select form-select-sm" id="filter-level1" onchange="renderGrid()">
+                    <option value="all">All 一级类目</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label class="form-label mb-1">二级类目</label>
+                <select class="form-select form-select-sm" id="filter-level2" onchange="renderGrid()">
+                    <option value="all">All 二级类目</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label class="form-label mb-1">三级类目</label>
+                <select class="form-select form-select-sm" id="filter-level3" onchange="renderGrid()">
+                    <option value="all">All 三级类目</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label class="form-label mb-1">品牌商城</label>
+                <select class="form-select form-select-sm" id="filter-official" onchange="renderGrid()">
+                    <option value="">全部店铺</option>
+                    <option value="1">商城店铺</option>
+                    <option value="0">非商城店铺</option>
+                </select>
+            </div>
+            <div class="filter-item filter-item-wide">
+                <label class="form-label mb-1">标题关键词</label>
+                <div class="search-field">
+                    <i class="bi bi-search"></i>
+                    <input class="form-control form-control-sm" id="filter-keyword" type="search" placeholder="搜索标题关键词" oninput="renderGrid()">
+                </div>
+            </div>`;
+    }
+
+    buildCurrentFilters();
+}
+        renderStoredView(viewName);
+        if (!LIVE_DATA_STORE.length) fetchDataByDomainChannel();
+    }
+
+    function updateActiveNav(viewName) {
+        document.querySelectorAll('[data-view-nav]').forEach(function(link) {
+            link.classList.remove('active');
+        });
+        const parent = document.querySelector('[data-view-nav="recommend"]');
+        if ((viewName === 'top-sku' || viewName === 'top-new-sku' || viewName === 'top-wh-sku') && parent) parent.classList.add('active');
+        const active = document.querySelector(`[data-view-nav="${viewName}"]`);
+        if (active) active.classList.add('active');
+    }
+
+    function updatePageHeader(viewName) {
+        const eyebrow = document.querySelector('.eyebrow');
+        const title = document.querySelector('.page-title');
+        const subtitle = document.querySelector('.page-subtitle');
+        if (viewName === 'external') {
+            eyebrow.textContent = 'Top Sku';
+            title.textContent = '站外热销参考';
+            subtitle.textContent = '快速查看不同站点、分类和销量表现，辅助判断上新方向。';
+        } else if (viewName === 'top-new-sku') {
+            eyebrow.textContent = 'Shopee选品推荐';
+            title.textContent = '热销新品';
+            subtitle.textContent = '按站点、品类、标题关键词筛选热销新品，了解新品趋势（新品定义：过去3个月上新的产品）。';
+        } else if (viewName === 'top-wh-sku') {
+            eyebrow.textContent = 'Shopee选品推荐';
+            title.textContent = '海外仓热销产品';
+            subtitle.textContent = '按站点、品类、标题关键词筛选海外仓热销产品，帮助判断海外仓上新方向。';
+        } else {
+            eyebrow.textContent = 'Shopee选品推荐';
+            title.textContent = '热销产品';
+            subtitle.textContent = '请按站点、品类、标题关键词等筛选热销商品，辅助判断上新方向。';
+        }
+    }
+
+    function renderFilterControls(viewName) {
+        const row = document.getElementById('filter-row');
+        if (viewName === 'external') {
+            row.innerHTML = `
+                <div class="col-md-2">
+                    <label class="form-label mb-1">站点</label>
+                    <select class="form-select form-select-sm" id="filter-country" onchange="renderGrid()">
+                        <option value="全部">全部站点</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label mb-1">商品分类</label>
+                    <select class="form-select form-select-sm" id="filter-category" onchange="renderGrid()">
+                        <option value="全部">全部商品分类</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label mb-1">销量排序</label>
+                    <select class="form-select form-select-sm" id="filter-sort" onchange="renderGrid()">
+                        <option value="desc" selected>销量从高到低</option>
+                        <option value="asc">销量从低到高</option>
+                        <option value="none">填表默认顺序</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label mb-1">标题关键词</label>
+                    <div class="search-field">
+                        <i class="bi bi-search"></i>
+                        <input class="form-control form-control-sm" id="filter-keyword" type="search" placeholder="搜索标题关键词" oninput="renderGrid()">
+                    </div>
+                </div>`;
+        } else {
+            row.innerHTML = `
+                <div class="col-xl-2 col-lg-3 col-md-4">
+                    <label class="form-label mb-1">销量排序</label>
+                    <select class="form-select form-select-sm" id="filter-sort" onchange="renderGrid()">
+                        <option value="desc" selected>销量从高到低</option>
+                        <option value="asc">销量从低到高</option>
+                        <option value="none">填表默认顺序</option>
+                    </select>
+                </div>
+                <div class="col-xl-2 col-lg-3 col-md-4">
+                    <label class="form-label mb-1">站点</label>
+                    <select class="form-select form-select-sm" id="filter-region" onchange="renderGrid()">
+                        <option value="all">All 站点</option>
+                    </select>
+                </div>
+                <div class="col-xl-2 col-lg-3 col-md-4">
+                    <label class="form-label mb-1">一级类目</label>
+                    <select class="form-select form-select-sm" id="filter-level1" onchange="renderGrid()">
+                        <option value="all">All 一级类目</option>
+                    </select>
+                </div>
+                <div class="col-xl-2 col-lg-3 col-md-4">
+                    <label class="form-label mb-1">二级类目</label>
+                    <select class="form-select form-select-sm" id="filter-level2" onchange="renderGrid()">
+                        <option value="all">All 二级类目</option>
+                    </select>
+                </div>
+                <div class="col-xl-2 col-lg-3 col-md-4">
+                    <label class="form-label mb-1">三级类目</label>
+                    <select class="form-select form-select-sm" id="filter-level3" onchange="renderGrid()">
+                        <option value="all">All 三级类目</option>
+                    </select>
+                </div>
+                <div class="col-xl-2 col-lg-3 col-md-4">
+                    <label class="form-label mb-1">品牌商城</label>
+                    <select class="form-select form-select-sm" id="filter-official" onchange="renderGrid()">
+                        <option value="">全部店铺</option>
+                        <option value="1">商城店铺</option>
+                        <option value="0">非商城店铺</option>
+                    </select>
+                </div>
+                <div class="col-xl-4 col-lg-6 col-md-8">
+                    <label class="form-label mb-1">标题关键词</label>
+                    <div class="search-field">
+                        <i class="bi bi-search"></i>
+                        <input class="form-control form-control-sm" id="filter-keyword" type="search" placeholder="搜索标题关键词" oninput="renderGrid()">
+                    </div>
+                </div>`;
+        }
+        buildCurrentFilters();
+    }
+
+    function fetchDataByDomainChannel() {
+        if (CURRENT_VIEW === 'external') {
+            fetchJsonpData(EXTERNAL_APPS_SCRIPT_URL, 'external-script', handleExternalResponse, '正在同步站外热销参考数据...');
+            return;
+        }
+        if (CURRENT_VIEW === 'top-new-sku') {
+            if (!TOP_NEW_SKU_APPS_SCRIPT_URL || TOP_NEW_SKU_APPS_SCRIPT_URL.includes('REPLACE')) {
+                setSyncLoading(false);
+                showErrorState('请先配置热销新品 Apps Script /exec 地址。');
+                return;
+            }
+            fetchJsonpData(TOP_NEW_SKU_APPS_SCRIPT_URL, 'top-new-sku-apps-script', handleTopNewSkuResponse, '正在通过 Apps Script 同步 Top new sku合并表...');
+            return;
+        }
+        if (CURRENT_VIEW === 'top-wh-sku') {
+            if (!TOP_WH_SKU_APPS_SCRIPT_URL || TOP_WH_SKU_APPS_SCRIPT_URL.includes('REPLACE')) {
+                setSyncLoading(false);
+                showErrorState('请先配置海外仓热销产品 Apps Script /exec 地址。');
+                return;
+            }
+            fetchJsonpData(TOP_WH_SKU_APPS_SCRIPT_URL, 'top-wh-sku-apps-script', handleTopWhSkuResponse, '正在通过 Apps Script 同步 Top wh sku合并表...');
+            return;
+        }
+        if (!TOP_SKU_APPS_SCRIPT_URL || TOP_SKU_APPS_SCRIPT_URL.includes('REPLACE')) {
+            setSyncLoading(false);
+            showErrorState('请先配置热销产品 Apps Script /exec 地址。');
+            return;
+        }
+        fetchJsonpData(TOP_SKU_APPS_SCRIPT_URL, 'top-sku-apps-script', handleTopSkuResponse, '正在通过 Apps Script 同步 Top sku合并表...');
+    }
+
+    function fetchJsonpData(url, scriptId, handler, loadingText) {
+        setSyncLoading(true, loadingText);
+        const oldScript = document.getElementById(scriptId);
+        if (oldScript) oldScript.remove();
+
+        const callbackName = `jsonp_${scriptId.replace(/-/g, '_')}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const script = document.createElement('script');
+        const timer = setTimeout(function() {
+            cleanupTopSkuScript(callbackName, script, timer);
+            setSyncLoading(false);
+            showErrorState('Apps Script 没有返回数据，请检查脚本部署或访问权限。');
+        }, 18000);
+
+        window[callbackName] = function(res) {
+            cleanupTopSkuScript(callbackName, script, timer);
+            setSyncLoading(false);
+            handler(res);
+        };
+
+        script.id = scriptId;
+        script.onerror = function() {
+            cleanupTopSkuScript(callbackName, script, timer);
+            setSyncLoading(false);
+            showErrorState('无法加载 Apps Script 数据接口，请检查脚本地址。');
+        };
+        script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + encodeURIComponent(callbackName) + '&t=' + Date.now();
+        document.body.appendChild(script);
+    }
+
+    function handleTopSkuResponse(res) {
+        if (res && res.error) {
+            showErrorState(res.error);
+            return;
+        }
+        VIEW_UPDATE_TIME['top-sku'] = (res && (res.updateTime || res.updatedAt || res.syncTime)) || '未检测到';
+        VIEW_DATA_STORE['top-sku'] = normalizeProductsPayload(res);
+        LIVE_DATA_STORE = VIEW_DATA_STORE['top-sku'];
+        const status = document.getElementById('result-status-text');
+        if (status) status.textContent = `已同步 ${LIVE_DATA_STORE.length} 条数据，正在渲染前 ${TOP_SKU_RENDER_LIMIT} 条...`;
+        setTimeout(function() {
+            renderStoredView('top-sku');
+        }, 0);
+    }
+
+    function handleTopNewSkuResponse(res) {
+        if (res && res.error) {
+            showErrorState(res.error);
+            return;
+        }
+        VIEW_UPDATE_TIME['top-new-sku'] = (res && (res.updateTime || res.updatedAt || res.syncTime)) || '未检测到';
+        VIEW_DATA_STORE['top-new-sku'] = normalizeProductsPayload(res);
+        LIVE_DATA_STORE = VIEW_DATA_STORE['top-new-sku'];
+        const status = document.getElementById('result-status-text');
+        if (status) status.textContent = `已同步 ${LIVE_DATA_STORE.length} 条数据，正在渲染前 ${TOP_SKU_RENDER_LIMIT} 条...`;
+        setTimeout(function() {
+            renderStoredView('top-new-sku');
+        }, 0);
+    }
+
+    function handleTopWhSkuResponse(res) {
+        if (res && res.error) {
+            showErrorState(res.error);
+            return;
+        }
+        VIEW_UPDATE_TIME['top-wh-sku'] = (res && (res.updateTime || res.updatedAt || res.syncTime)) || '未检测到';
+        VIEW_DATA_STORE['top-wh-sku'] = normalizeProductsPayload(res);
+        LIVE_DATA_STORE = VIEW_DATA_STORE['top-wh-sku'];
+        const status = document.getElementById('result-status-text');
+        if (status) status.textContent = `已同步 ${LIVE_DATA_STORE.length} 条数据，正在渲染前 ${TOP_SKU_RENDER_LIMIT} 条...`;
+        setTimeout(function() {
+            renderStoredView('top-wh-sku');
+        }, 0);
+    }
+
+    function handleExternalResponse(res) {
+        if (res && res.error) {
+            showErrorState(res.error);
+            return;
+        }
+        VIEW_UPDATE_TIME.external = (res && (res.updateTime || res.updatedAt || res.syncTime)) || '未检测到';
+        VIEW_DATA_STORE.external = (res && res.products) ? res.products : normalizeProductsPayload(res);
+        LIVE_DATA_STORE = VIEW_DATA_STORE.external;
+        const status = document.getElementById('result-status-text');
+        if (status) status.textContent = `已同步 ${LIVE_DATA_STORE.length} 条数据，正在渲染...`;
+        setTimeout(function() {
+            renderStoredView('external');
+        }, 0);
+    }
+
+    function renderStoredView(viewName) {
+        const updateTime = VIEW_UPDATE_TIME[viewName] || '正在获取...';
+        document.getElementById('sync-time-field').innerHTML = `<i class="bi bi-clock-history text-success"></i> 同步时间：${escapeHtml(updateTime)}`;
+        buildCurrentFilters();
+        renderGrid();
+    }
+
+    function setSyncLoading(isLoading, loadingText) {
+        const button = document.getElementById('refresh-btn');
+        const text = document.getElementById('refresh-btn-text');
+        const status = document.getElementById('result-status-text');
+        if (!button || !text) return;
+
+        button.classList.toggle('is-loading', isLoading);
+        button.disabled = isLoading;
+        text.textContent = isLoading ? '同步中' : '刷新同步';
+        if (isLoading && status) status.textContent = loadingText || '正在同步数据...';
+        if (isLoading && LIVE_DATA_STORE.length === 0) {
+            document.getElementById('grid-container').innerHTML = `
+                <div class="loader-container" id="loading-box">
+                    <div class="spinner-border text-danger mb-2" role="status"></div>
+                    <span class="text-muted small">${escapeHtml(loadingText || '正在同步数据...')}</span>
+                </div>`;
+        }
+    }
+
+    function showErrorState(message) {
+    // 1. 安全更新摘要计数（如果函数存在的话）
+    if (typeof updateSummary === 'function') {
+        updateSummary(0);
+    }
+    
+    // 2. 安全更新同步时间字段
+    const syncTimeField = document.getElementById('sync-time-field');
+    if (syncTimeField) {
+        syncTimeField.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger"></i> 同步失败';
+    }
+
+    // 3. 安全更新结果状态文字（原报错行：加了判断后绝对不会再崩溃）
+    const resultStatusText = document.getElementById('result-status-text');
+    if (resultStatusText) {
+        resultStatusText.textContent = '数据同步失败';
+    }
+
+    // 4. 动态识别当前视窗标签（保留你的多视窗判断业务逻辑，并做好防卡死兼容）
+    let viewLabel = '热销产品'; // 默认保底字
+    if (typeof CURRENT_VIEW !== 'undefined') {
+        viewLabel = CURRENT_VIEW === 'top-new-sku' ? '热销新品' : (CURRENT_VIEW === 'external' ? '站外热销参考' : '热销产品');
+    }
+
+    // 5. 安全更新核心数据展示区域
+    const gridContainer = document.getElementById('grid-container');
+    if (gridContainer) {
+        // 如果代码里没有定义 escapeHtml 函数，做个兼容处理，防止二次崩溃
+        const safeMessage = (typeof escapeHtml === 'function') 
+            ? escapeHtml(message || '请稍后再试。') 
+            : (message || '请稍后再试。');
+
+        gridContainer.innerHTML = `
+            <div class="state-card error" style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                <div>
+                    <i class="bi bi-exclamation-circle fs-2 d-block mb-2 text-danger"></i>
+                    <strong>暂时没有同步到${viewLabel}数据</strong>
+                    <p style="margin-top: 10px; color: #6c757d;">原因: ${safeMessage}</p>
+                </div>
+            </div>`;
+    } else {
+        // 如果连展示区域都没有，直接用弹窗兜底提示真正的错误
+        alert(`暂时没有同步到${viewLabel}数据。\n原因: ${message}`);
+    }
+}
+
+    function buildCurrentFilters() {
+        if (CURRENT_VIEW === 'external') {
+            if (!document.getElementById('filter-country')) return;
+            buildExternalCountries();
+            buildExternalCategories();
+            return;
+        }
+        if (!document.getElementById('filter-region')) return;
+        buildDynamicFilters();
+    }
+
+    function buildExternalCountries() {
+        const select = document.getElementById('filter-country');
+        const currentSelected = select.value || '全部';
+        select.innerHTML = '<option value="全部">全部站点</option>';
+        const countries = {};
+        LIVE_DATA_STORE.forEach(function(row) {
+            const country = String(row['国家/地区'] || row['国家'] || row['站点'] || '').toUpperCase().trim();
+            if (country) countries[country] = true;
+        });
+        Object.keys(countries).sort().forEach(function(country) {
+            const option = document.createElement('option');
+            option.value = country;
+            option.textContent = country + ' 站点';
+            select.appendChild(option);
+        });
+        select.value = countries[currentSelected] ? currentSelected : (countries.VN ? 'VN' : '全部');
+    }
+
+    function buildExternalCategories() {
+        const select = document.getElementById('filter-category');
+        const currentSelected = select.value || '全部';
+        select.innerHTML = '<option value="全部">全部商品分类</option>';
+        const categories = {};
+        LIVE_DATA_STORE.forEach(function(row) {
+            const category = String(row['商品分类'] || '').trim();
+            if (category) categories[category] = true;
+        });
+        Object.keys(categories).sort().forEach(function(category) {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            select.appendChild(option);
+        });
+        select.value = categories[currentSelected] ? currentSelected : '全部';
+    }
+
+    function resetFilters() {
+        if (CURRENT_VIEW === 'external') {
+            document.getElementById('filter-country').value = '全部';
+            document.getElementById('filter-category').value = '全部';
+            document.getElementById('filter-sort').value = 'desc';
+            document.getElementById('filter-keyword').value = '';
+        } else {
+            document.getElementById('filter-sort').value = 'desc';
+            document.getElementById('filter-region').value = 'all';
+            document.getElementById('filter-level1').value = 'all';
+            document.getElementById('filter-level2').value = 'all';
+            document.getElementById('filter-level3').value = 'all';
+            document.getElementById('filter-official').value = '';
+            document.getElementById('filter-keyword').value = '';
+        }
+        renderGrid();
+    }
+
+    function updateSummary(filteredCount, renderedCount) {
+    const resultBar = document.querySelector('.result-bar');
+    const resultText = document.getElementById('result-status-text');
+    const shown = renderedCount === undefined ? filteredCount : renderedCount;
+    const suffix = filteredCount > shown ? `，当前展示前 ${shown} 个` : '';
+
+    if (CURRENT_VIEW === 'top-sku' || CURRENT_VIEW === 'top-new-sku' || CURRENT_VIEW === 'top-wh-sku') {
+        if (resultBar) resultBar.classList.add('is-hidden');
+        return;
+    }
+
+    if (resultBar) resultBar.classList.remove('is-hidden');
+    if (resultText) {
+        resultText.textContent = `筛选出 ${filteredCount} 个站外热销参考商品${suffix}`;
+    }
+}
+
+    function renderGrid() {
+        if (CURRENT_VIEW === 'external') {
+            renderExternalGrid();
+            return;
+        }
+        renderTopSkuGrid();
+    }
+
+    function renderExternalGrid() {
+        const container = document.getElementById('grid-container');
+        const countryVal = document.getElementById('filter-country').value;
+        const categoryVal = document.getElementById('filter-category').value;
+        const sortVal = document.getElementById('filter-sort').value;
+        const keywordVal = document.getElementById('filter-keyword').value.trim().toLowerCase();
+
+        let filtered = LIVE_DATA_STORE.filter(function(row) {
+            const rCountry = String(row['国家/地区'] || row['国家'] || row['站点'] || '').toUpperCase().trim();
+            const rCategory = String(row['商品分类'] || '').trim();
+            const rName = String(row['商品名称'] || '').toLowerCase();
+            return (countryVal === '全部' || rCountry === countryVal || rCountry.includes(countryVal)) &&
+                (categoryVal === '全部' || rCategory === categoryVal) &&
+                (!keywordVal || rName.includes(keywordVal));
+        });
+
+        if (sortVal === 'desc') {
+            filtered.sort(function(a, b) {
+                return parseSalesNumber(b['日均销量区间'] || b['日均销量区'] || b['销量']) - parseSalesNumber(a['日均销量区间'] || a['日均销量区'] || a['销量']);
+            });
+        } else if (sortVal === 'asc') {
+            filtered.sort(function(a, b) {
+                return parseSalesNumber(a['日均销量区间'] || a['日均销量区'] || a['销量']) - parseSalesNumber(b['日均销量区间'] || b['日均销量区'] || b['销量']);
+            });
+        }
+
+        const renderedRows = filtered.slice(0, EXTERNAL_RENDER_LIMIT);
+        updateSummary(filtered.length, renderedRows.length);
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state"><div><i class="bi bi-inbox fs-2 d-block mb-2"></i><strong>暂无匹配数据</strong><p>可以重置筛选，或换一个标题关键词。</p></div></div>';
+            return;
+        }
+
+        let gridHtml = '';
+        renderedRows.forEach(function(row, index) {
+            let name = row['商品名称'] || '未指定商品名';
+            let price = row['售价'] || '暂无价格';
+            let sales = row['日均销量区间'] || row['日均销量区'] || row['销量'] || '0';
+            let img = row['商品图片'] || '';
+            let cate = row['商品分类'] || '其他';
+            let country = String(row['国家/地区'] || row['国家'] || row['站点'] || '').toUpperCase().trim();
+            let rawUrl = row['商品链接'] || row['FastMoss链接'] || row['源链接'] || '';
+            if (!rawUrl) {
+                for (let key in row) {
+                    if (String(row[key]).includes('http') && String(row[key]).includes('fastmoss')) {
+                        rawUrl = row[key];
+                        break;
+                    }
+                }
+            }
+            if (!img || !img.startsWith('http')) img = 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=200';
+
+            const safeName = escapeHtml(name);
+            const safePrice = escapeHtml(price);
+            const safeSales = escapeHtml(sales);
+            const safeImg = escapeHtml(img);
+            const safeCate = escapeHtml(cate);
+            const safeRawUrl = escapeHtml(rawUrl);
+            const safeCountry = escapeHtml(country);
+            const rank = index + 1;
+
+            gridHtml += `
+                <div class="col-ecommerce-8-grid">
+                    <div class="product-card">
+                        <div class="product-click-area ${rawUrl ? 'is-clickable' : ''}" data-url="${safeRawUrl}" onclick="openCardLink(this)" title="${rawUrl ? '打开源链接' : ''}">
+                            <div class="product-img-wrapper">
+                                <span class="rank-badge ${rank <= 3 ? 'hot' : ''}">TOP ${rank}</span>
+                                ${country ? `<span class="country-badge">${safeCountry}</span>` : ''}
+                                <img src="${safeImg}" class="product-img" alt="${safeName}" onerror="this.src='https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=200'">
+                            </div>
+                            <div class="product-info">
+                                <span class="cate-tag" title="${safeCate}">${safeCate}</span>
+                                <div class="product-title-row">
+                                    <div class="product-title" title="${safeName}">${safeName}</div>
+                                    <button class="copy-title-btn" data-title="${safeName}" onclick="copyProductTitle(event, this)" title="复制完整标题">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="product-footer">
+                            <div class="price-row">
+                                <span class="product-price" title="${safePrice}">${safePrice}</span>
+                                <span class="badge-sales" title="实际参与排序权重值: ${parseSalesNumber(sales)}">
+                                    <i class="bi bi-fire"></i>${safeSales}
+                                </span>
+                            </div>
+                            <div class="action-row ${rawUrl ? '' : 'single'}">
+                                <button class="tool-btn" data-image="${safeImg}" onclick="openImageSearch(event, this)" title="用商品图片搜索 1688">
+                                    <i class="bi bi-camera"></i>
+                                    <span>图搜</span>
+                                </button>
+                                ${rawUrl ? `<button class="tool-btn tool-btn-primary" data-url="${safeRawUrl}" onclick="openButtonLink(event, this)" title="打开商品源链接">
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                    <span>源链</span>
+                                </button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        container.innerHTML = gridHtml;
+    }
+
+    function renderTopSkuGrid() {
+    const container = document.getElementById('grid-container');
+    const sortVal = document.getElementById('filter-sort').value;
+    const regionVal = document.getElementById('filter-region').value;
+    const level1Val = document.getElementById('filter-level1').value;
+    const level2Val = document.getElementById('filter-level2').value;
+    const level3Val = document.getElementById('filter-level3').value;
+    const officialVal = document.getElementById('filter-official').value;
+    const keywordVal = document.getElementById('filter-keyword').value.trim().toLowerCase();
+
+    let filtered = LIVE_DATA_STORE.filter(function(row) {
+        const rRegion = getField(row, 'region');
+        const rLevel1 = getField(row, 'level1');
+        const rLevel2 = getField(row, 'level2');
+        const rLevel3 = getField(row, 'level3');
+        const rOfficial = getOfficialValue(row);
+        const rName = getField(row, 'itemName').toLowerCase();
+
+        return (regionVal === 'all' || rRegion === regionVal) &&
+            (level1Val === 'all' || rLevel1 === level1Val) &&
+            (level2Val === 'all' || rLevel2 === level2Val) &&
+            (level3Val === 'all' || rLevel3 === level3Val) &&
+            (!officialVal || rOfficial === officialVal) &&
+            (!keywordVal || rName.includes(keywordVal));
+    });
+
+    if (sortVal === 'desc') {
+        filtered.sort(function(a, b) {
+            return parseSalesNumber(getField(b, 'dailySales')) - parseSalesNumber(getField(a, 'dailySales'));
+        });
+    } else if (sortVal === 'asc') {
+        filtered.sort(function(a, b) {
+            return parseSalesNumber(getField(a, 'dailySales')) - parseSalesNumber(getField(b, 'dailySales'));
+        });
+    }
+
+    const renderedRows = filtered.slice(0, TOP_SKU_RENDER_LIMIT);
+    updateSummary(filtered.length, renderedRows.length);
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div><i class="bi bi-inbox fs-2 d-block mb-2"></i><strong>暂无匹配数据</strong><p>可以重置筛选，或者换一个标题关键词。</p></div></div>';
+        return;
+    }
+
+    let gridHtml = '';
+    renderedRows.forEach(function(row, index) {
+        const name = getField(row, 'itemName') || '未指定商品名';
+        const priceParts = getPriceLine(row);
+        const sales = getField(row, 'dailySales') || '0';
+        const revenue = getField(row, 'dailyRevenue') || '-';
+        let img = getField(row, 'itemImage') || '';
+        const region = getField(row, 'region') || '-';
+        const level1 = getField(row, 'level1') || '-';
+        const level2 = getField(row, 'level2') || '-';
+        const createDate = getField(row, 'createDate') || '-';
+        const official = getOfficialValue(row);
+        const officialLabel = official === '1' ? '[Mall]' : '[Non-Mall]';
+        const topRank = getField(row, 'itemRank') || (index + 1);
+
+        if (!img || !img.startsWith('http')) {
+            img = 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=200';
+        }
+
+        const safeName = escapeHtml(name);
+        const safeUsdText = escapeHtml(priceParts.usdText);
+        const safeLocalText = escapeHtml(priceParts.localText);
+        const safeSales = escapeHtml(sales);
+        const safeRevenue = escapeHtml(revenue);
+        const safeImg = escapeHtml(img);
+        const safeRegion = escapeHtml(region);
+        const safeCreateDate = escapeHtml(createDate);
+        const safeTopRank = escapeHtml(topRank);
+        const safeOfficialLabel = escapeHtml(officialLabel);
+        const safeCategoryLine = escapeHtml(getCategoryLine(level1, level2));
+
+        gridHtml += `
+            <div class="col-ecommerce-8-grid">
+                <div class="product-card product-card-v2">
+                    <div class="product-image-wrap">
+                        <span class="top-badge">TOP ${safeTopRank}</span>
+                        <span class="country-badge">${safeRegion}</span>
+                        <img src="${safeImg}" alt="${safeName}" onerror="this.src='https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=200'">
+                    </div>
+
+                    <div class="product-body">
+                        <div class="product-title-row">
+                            <span class="shop-tag">${safeOfficialLabel}</span>
+                            <div class="title-wrap">
+                                <div class="product-title" title="${safeName}">${safeName}</div>
+                                <button class="copy-title-btn" data-title="${safeName}" onclick="copyProductTitle(event, this)" title="复制完整标题">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="price-line" title="${safeUsdText} ${safeLocalText}">
+                            <span class="usd-price">${safeUsdText}</span>
+                            <span class="local-price">${safeLocalText}</span>
+                        </div>
+
+                        <div class="stat-line">日销量：${safeSales}</div>
+                        <div class="stat-line">日销售额：$ ${safeRevenue}</div>
+
+                        <div class="meta-line">${safeCategoryLine}</div>
+                        <div class="meta-line">创建日期：${safeCreateDate}</div>
+
+                        <div class="card-actions">
+                            <button class="tool-btn" data-image="${safeImg}" onclick="openImageSearch(event, this)" title="图搜">
+                                <i class="bi bi-camera"></i>
+                                <span>图搜</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    });
+
+    container.innerHTML = gridHtml;
+}
+       
+
+    function updatePageHeader(viewName) {
+        const eyebrow = document.querySelector('.eyebrow');
+        const title = document.querySelector('.page-title');
+        const subtitle = document.querySelector('.page-subtitle');
+        const filterPanel = document.querySelector('.filter-panel');
+        const resultBar = document.querySelector('.result-bar');
+        const toolbar = document.querySelector('.toolbar-actions');
+
+        if (filterPanel) filterPanel.style.display = '';
+        if (resultBar) resultBar.style.display = '';
+        if (toolbar) toolbar.style.display = '';
+
+        if (viewName === 'coming-soon') {
+            eyebrow.textContent = 'Shopee选品推荐';
+            title.textContent = '热搜关键词 / 品类趋势分析';
+            subtitle.textContent = '产品搭建中，敬请期待。';
+            return;
+        }
+
+        if (viewName === 'external') {
+            eyebrow.textContent = 'Top Sku';
+            title.textContent = '站外热销参考';
+            subtitle.textContent = '快速查看不同站点、分类和销量表现，辅助判断上新方向。';
+        } else if (viewName === 'top-new-sku') {
+            eyebrow.textContent = 'Shopee选品推荐';
+            title.textContent = '热销新品';
+            subtitle.textContent = '按站点、品类、标题关键词筛选热销新品，了解新品趋势（新品定义：近3个月上新的产品）。';
+        } else if (viewName === 'top-wh-sku') {
+            eyebrow.textContent = 'Shopee选品推荐';
+            title.textContent = '海外仓热销产品';
+            subtitle.textContent = '按站点、品类、标题关键词筛选海外仓热销产品，帮助判断海外仓上新方向。';
+        } else {
+            eyebrow.textContent = 'Shopee选品推荐';
+            title.textContent = '热销产品';
+            subtitle.textContent = '请按站点、品类、标题关键词等筛选热销商品，辅助判断上新方向。';
+        }
+    }
+
+    function renderComingSoonView() {
+        const filterPanel = document.querySelector('.filter-panel');
+        const resultBar = document.querySelector('.result-bar');
+        const toolbar = document.querySelector('.toolbar-actions');
+        const container = document.getElementById('grid-container');
+
+        if (filterPanel) filterPanel.style.display = 'none';
+        if (resultBar) resultBar.style.display = 'none';
+        if (toolbar) toolbar.style.display = 'none';
+
+        container.innerHTML = `
+            <div class="coming-soon-page">
+                <div class="coming-soon-text">产品搭建中，敬请期待</div>
+            </div>`;
+    }
+
+    function renderFilterControls(viewName) {
+        const row = document.getElementById('filter-row');
+        if (viewName === 'coming-soon') {
+            row.className = 'row g-2';
+            row.innerHTML = '';
+            return;
+        }
+        if (viewName === 'external') {
+            row.innerHTML = `
+                <div class="col-md-2">
+                    <label class="form-label mb-1">站点</label>
+                    <select class="form-select form-select-sm" id="filter-country" onchange="renderGrid()">
+                        <option value="全部">全部站点</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label mb-1">商品分类</label>
+                    <select class="form-select form-select-sm" id="filter-category" onchange="renderGrid()">
+                        <option value="全部">全部商品分类</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label mb-1">销量排序</label>
+                    <select class="form-select form-select-sm" id="filter-sort" onchange="renderGrid()">
+                        <option value="desc" selected>销量从高到低</option>
+                        <option value="asc">销量从低到高</option>
+                        <option value="none">表格默认顺序</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label mb-1">标题关键词</label>
+                    <div class="search-field">
+                        <i class="bi bi-search"></i>
+                        <input class="form-control form-control-sm" id="filter-keyword" type="search" placeholder="搜索标题关键词" oninput="renderGrid()">
+                    </div>
+                </div>`;
+        } else {
+            row.className = 'top-sku-filter-row';
+            row.innerHTML = `
+                <div class="filter-item">
+                    <label class="form-label mb-1">排序</label>
+                    <select class="form-select form-select-sm" id="filter-sort" onchange="renderGrid()">
+                        <option value="desc" selected>销量从高到低</option>
+                        <option value="asc">销量从低到高</option>
+                        <option value="none">表格默认顺序</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="form-label mb-1">站点</label>
+                    <select class="form-select form-select-sm" id="filter-region" onchange="renderGrid()">
+                        <option value="all">All 站点</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="form-label mb-1">一级类目</label>
+                    <select class="form-select form-select-sm" id="filter-level1" onchange="renderGrid()">
+                        <option value="all">All 一级类目</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="form-label mb-1">二级类目</label>
+                    <select class="form-select form-select-sm" id="filter-level2" onchange="renderGrid()">
+                        <option value="all">All 二级类目</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="form-label mb-1">三级类目</label>
+                    <select class="form-select form-select-sm" id="filter-level3" onchange="renderGrid()">
+                        <option value="all">All 三级类目</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="form-label mb-1">品牌商城</label>
+                    <select class="form-select form-select-sm" id="filter-official" onchange="renderGrid()">
+                        <option value="">全部店铺</option>
+                        <option value="1">商城店铺</option>
+                        <option value="0">非商城店铺</option>
+                    </select>
+                </div>
+                <div class="filter-item filter-item-wide">
+                    <label class="form-label mb-1">标题关键词</label>
+                    <div class="search-field">
+                        <i class="bi bi-search"></i>
+                        <input class="form-control form-control-sm" id="filter-keyword" type="search" placeholder="搜索标题关键词" oninput="renderGrid()">
+                    </div>
+                </div>`;
+        }
+
+        buildCurrentFilters();
+    }
+
+    window.switchView = switchView;
+    window.fetchDataByDomainChannel = fetchDataByDomainChannel;
+    window.renderGrid = renderGrid;
+    window.resetFilters = resetFilters;
+    renderFilterControls(CURRENT_VIEW);
+    document.querySelector('[data-view-nav="top-sku"]')?.addEventListener('click', function(event) {
+        event.preventDefault();
+        switchView('top-sku');
+    });
+    document.querySelector('[data-view-nav="top-new-sku"]')?.addEventListener('click', function(event) {
+        event.preventDefault();
+        switchView('top-new-sku');
+    });
+    document.querySelector('[data-view-nav="top-wh-sku"]')?.addEventListener('click', function(event) {
+        event.preventDefault();
+        switchView('top-wh-sku');
+    });
+    document.querySelector('[data-view-nav="external"]')?.addEventListener('click', function(event) {
+        event.preventDefault();
+        switchView('external');
+    });
+</script>
+</body>
+</html>
