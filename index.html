@@ -1062,11 +1062,11 @@
 
 <script>
     // 填入热销产品 Apps Script /exec 地址；接口返回格式：{ updateTime: "B1时间", products: [...] }
-    const TOP_SKU_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbUXYdsIvDgEIRTIn43939gfvqIF9tsr3i2-yndKXNGrKJFNi2Z_wbwgK47I2bQx40/exec';
+    const TOP_SKU_APPS_SCRIPT_URL = 'https://script.google.com/a/macros/shopee.com/s/AKfycbw1IJ2uD1l5xyq4x6tuwNlQ0DUxorvoKX8LSxWVGGFCU4RcNxlYrMhZ5I-v4zgsy2sD/exec?sheetName=Top%20sku%E5%90%88%E5%B9%B6%E8%A1%A8';
     // 填入热销新品 Apps Script /exec 地址；接口返回格式同上
-    const TOP_NEW_SKU_APPS_SCRIPT_URL = 'https://script.google.com/a/macros/shopee.com/s/AKfycbzhBQsOWgKnjORwSDpJpiS9HA1328_F98W-leQxY-mwRHLXV8pjTXgqsdKCMLld6HkE/exec';
+    const TOP_NEW_SKU_APPS_SCRIPT_URL = 'https://script.google.com/a/macros/shopee.com/s/AKfycbw1IJ2uD1l5xyq4x6tuwNlQ0DUxorvoKX8LSxWVGGFCU4RcNxlYrMhZ5I-v4zgsy2sD/exec?sheetName=Top%20new%20sku%E5%90%88%E5%B9%B6%E8%A1%A8';
     // 填入海外仓热销产品 Apps Script /exec 地址；接口返回格式同上
-    const TOP_WH_SKU_APPS_SCRIPT_URL = 'https://script.google.com/a/macros/shopee.com/s/AKfycbwIAXEFl_unXGwQ-7U0FwBj5Bw8VTZAH2ef1ZuT6J_sjx_RhCzVUZiLfO4No9TBLYpH/exec';
+    const TOP_WH_SKU_APPS_SCRIPT_URL = 'https://script.google.com/a/macros/shopee.com/s/AKfycbw1IJ2uD1l5xyq4x6tuwNlQ0DUxorvoKX8LSxWVGGFCU4RcNxlYrMhZ5I-v4zgsy2sD/exec?sheetName=Top%20wh%20sku%E5%90%88%E5%B9%B6%E8%A1%A8';
 
     const FIELD_ALIASES = {
     dailySales: ['日销量区间', '日销量区间_2', 'daily_sales_range'],
@@ -1162,6 +1162,20 @@
                     <span class="text-muted small">正在同步热销产品数据...</span>
                 </div>`;
         }
+    }
+
+    function showErrorState(message) {
+        updateSummary(0);
+        document.getElementById('sync-time-field').innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger"></i> 同步失败';
+        document.getElementById('result-status-text').textContent = '数据同步失败';
+        document.getElementById('grid-container').innerHTML = `
+            <div class="state-card error">
+                <div>
+                    <i class="bi bi-exclamation-circle fs-2 d-block mb-2"></i>
+                    <strong>暂时没有同步到热销产品数据</strong>
+                    <p>${escapeHtml(message || '请稍后再试。')}</p>
+                </div>
+            </div>`;
     }
 
     function normalizeProductsPayload(res) {
@@ -1596,7 +1610,7 @@ function getCategoryLine(level1, level2) {
 </script>
 
 <script>
-    const EXTERNAL_APPS_SCRIPT_URL = "https://script.google.com/a/macros/shopee.com/s/AKfycbwYP-Smb0Pp__2lUoqf-pTbDXYT0TV_MwhCX_Bw8GuibaF6LcryZpfiNpF65vt24G5_/exec";
+    const EXTERNAL_APPS_SCRIPT_URL = "https://script.google.com/a/macros/shopee.com/s/AKfycbw1IJ2uD1l5xyq4x6tuwNlQ0DUxorvoKX8LSxWVGGFCU4RcNxlYrMhZ5I-v4zgsy2sD/exec?sheetName=%E7%AB%99%E5%A4%96Top%20sku";
     const TOP_SKU_RENDER_LIMIT = 300;
     const EXTERNAL_RENDER_LIMIT = 600;
     var CURRENT_VIEW = 'top-sku';
@@ -1968,50 +1982,19 @@ function getCategoryLine(level1, level2) {
     }
 
     function showErrorState(message) {
-    // 1. 安全更新摘要计数（如果函数存在的话）
-    if (typeof updateSummary === 'function') {
         updateSummary(0);
-    }
-    
-    // 2. 安全更新同步时间字段
-    const syncTimeField = document.getElementById('sync-time-field');
-    if (syncTimeField) {
-        syncTimeField.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger"></i> 同步失败';
-    }
-
-    // 3. 安全更新结果状态文字（原报错行：加了判断后绝对不会再崩溃）
-    const resultStatusText = document.getElementById('result-status-text');
-    if (resultStatusText) {
-        resultStatusText.textContent = '数据同步失败';
-    }
-
-    // 4. 动态识别当前视窗标签（保留你的多视窗判断业务逻辑，并做好防卡死兼容）
-    let viewLabel = '热销产品'; // 默认保底字
-    if (typeof CURRENT_VIEW !== 'undefined') {
-        viewLabel = CURRENT_VIEW === 'top-new-sku' ? '热销新品' : (CURRENT_VIEW === 'external' ? '站外热销参考' : '热销产品');
-    }
-
-    // 5. 安全更新核心数据展示区域
-    const gridContainer = document.getElementById('grid-container');
-    if (gridContainer) {
-        // 如果代码里没有定义 escapeHtml 函数，做个兼容处理，防止二次崩溃
-        const safeMessage = (typeof escapeHtml === 'function') 
-            ? escapeHtml(message || '请稍后再试。') 
-            : (message || '请稍后再试。');
-
-        gridContainer.innerHTML = `
-            <div class="state-card error" style="grid-column: 1/-1; text-align: center; padding: 40px;">
+        document.getElementById('sync-time-field').innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger"></i> 同步失败';
+        document.getElementById('result-status-text').textContent = '数据同步失败';
+        const viewLabel = CURRENT_VIEW === 'top-new-sku' ? '热销新品' : (CURRENT_VIEW === 'external' ? '站外热销参考' : '热销产品');
+        document.getElementById('grid-container').innerHTML = `
+            <div class="state-card error">
                 <div>
-                    <i class="bi bi-exclamation-circle fs-2 d-block mb-2 text-danger"></i>
+                    <i class="bi bi-exclamation-circle fs-2 d-block mb-2"></i>
                     <strong>暂时没有同步到${viewLabel}数据</strong>
-                    <p style="margin-top: 10px; color: #6c757d;">原因: ${safeMessage}</p>
+                    <p>${escapeHtml(message || '请稍后再试。')}</p>
                 </div>
             </div>`;
-    } else {
-        // 如果连展示区域都没有，直接用弹窗兜底提示真正的错误
-        alert(`暂时没有同步到${viewLabel}数据。\n原因: ${message}`);
     }
-}
 
     function buildCurrentFilters() {
         if (CURRENT_VIEW === 'external') {
