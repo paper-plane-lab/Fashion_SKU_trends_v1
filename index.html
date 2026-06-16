@@ -1325,11 +1325,13 @@ function getCategoryLine(level1, level2) {
         });
     }
 
-    function getSortLabel(sortVal) {
-        if (sortVal === 'asc') return '销量低优先';
-        if (sortVal === 'none') return '默认顺序';
-        return '销量高优先';
-    }
+ function getSortLabel(sortVal) {
+    if (sortVal === 'asc') return '销量从低到高';
+    if (sortVal === 'revenue_desc') return '销售额从高到低';
+    if (sortVal === 'revenue_asc') return '销售额从低到高';
+    if (sortVal === 'none') return '默认顺序';
+    return '销量从高到低';
+}
 
     function getField(row, fieldName) {
         const aliases = FIELD_ALIASES[fieldName] || [];
@@ -2216,15 +2218,23 @@ function getCategoryLine(level1, level2) {
             (!keywordVal || rName.includes(keywordVal));
     });
 
-    if (sortVal === 'desc') {
-        filtered.sort(function(a, b) {
-            return parseSalesNumber(getField(b, 'dailySales')) - parseSalesNumber(getField(a, 'dailySales'));
-        });
-    } else if (sortVal === 'asc') {
-        filtered.sort(function(a, b) {
-            return parseSalesNumber(getField(a, 'dailySales')) - parseSalesNumber(getField(b, 'dailySales'));
-        });
-    }
+  if (sortVal === 'desc') {
+    filtered.sort(function(a, b) {
+        return parseSalesNumber(getField(b, 'dailySales')) - parseSalesNumber(getField(a, 'dailySales'));
+    });
+} else if (sortVal === 'asc') {
+    filtered.sort(function(a, b) {
+        return parseSalesNumber(getField(a, 'dailySales')) - parseSalesNumber(getField(b, 'dailySales'));
+    });
+} else if (sortVal === 'revenue_desc') {
+    filtered.sort(function(a, b) {
+        return parseSalesNumber(getField(b, 'dailyRevenue')) - parseSalesNumber(getField(a, 'dailyRevenue'));
+    });
+} else if (sortVal === 'revenue_asc') {
+    filtered.sort(function(a, b) {
+        return parseSalesNumber(getField(a, 'dailyRevenue')) - parseSalesNumber(getField(b, 'dailyRevenue'));
+    });
+}
 
     const renderedRows = filtered.slice(0, TOP_SKU_RENDER_LIMIT);
     updateSummary(filtered.length, renderedRows.length);
@@ -2405,13 +2415,15 @@ function getCategoryLine(level1, level2) {
             row.className = 'top-sku-filter-row';
             row.innerHTML = `
                 <div class="filter-item">
-                    <label class="form-label mb-1">排序</label>
-                    <select class="form-select form-select-sm" id="filter-sort" onchange="renderGrid()">
-                        <option value="desc" selected>销量从高到低</option>
-                        <option value="asc">销量从低到高</option>
-                        <option value="none">表格默认顺序</option>
-                    </select>
-                </div>
+    <label class="form-label mb-1">排序（默认按销量）</label>
+    <select class="form-select form-select-sm" id="filter-sort" onchange="renderGrid()">
+        <option value="desc" selected>销量从高到低</option>
+        <option value="asc">销量从低到高</option>
+        <option value="revenue_desc">销售额从高到低</option>
+        <option value="revenue_asc">销售额从低到高</option>
+        <option value="none">默认顺序</option>
+    </select>
+</div>
                 <div class="filter-item">
                     <label class="form-label mb-1">站点</label>
                     <select class="form-select form-select-sm" id="filter-region" onchange="renderGrid()">
