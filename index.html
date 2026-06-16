@@ -1666,12 +1666,14 @@ function getCategoryLine(level1, level2) {
         row.className = 'top-sku-filter-row';
         row.innerHTML = `
             <div class="filter-item">
-                <label class="form-label mb-1">排序</label>
-                <select class="form-select form-select-sm" id="filter-sort" onchange="renderGrid()">
-                    <option value="desc" selected>销量从高到低</option>
-                    <option value="asc">销量从低到高</option>
-                    <option value="none">表格默认顺序</option>
-                </select>
+                <label class="form-label mb-1">排序（默认按销量）</label>
+<select class="form-select form-select-sm" id="filter-sort" onchange="renderGrid()">
+    <option value="desc" selected>销量从高到低</option>
+    <option value="asc">销量从低到高</option>
+    <option value="revenue_desc">销售额从高到低</option>
+    <option value="revenue_asc">销售额从低到高</option>
+    <option value="none">默认顺序</option>
+</select>
             </div>
             <div class="filter-item">
                 <label class="form-label mb-1">站点</label>
